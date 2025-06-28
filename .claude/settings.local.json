@@ -9,7 +9,12 @@
       "Bash(node:*)",
       "Bash(npm --version)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm install:*)",
+      "Bash(dxt:*)",
+      "Bash(mcp-inspector:*)",
+      "Bash(rm:*)",
+      "Bash(sha256sum:*)"
     ],
     "deny": []
   }

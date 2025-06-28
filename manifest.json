@@ -8,15 +8,15 @@
   "author": {
     "name": "Dr. Saptaswa Dey",
     "email": "saptaswa.dey@medunigraz.at",
-    "url": "https://github.com/saptaswa-dey"
+    "url": "https://github.com/SaptaDey"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/saptaswa-dey/asr-got-desktop-extension"
+    "url": "https://github.com/SaptaDey/scientific-research-claude-extension"
   },
-  "homepage": "https://github.com/saptaswa-dey/asr-got-desktop-extension",
-  "documentation": "https://github.com/saptaswa-dey/asr-got-desktop-extension/blob/main/README.md",
-  "support": "https://github.com/saptaswa-dey/asr-got-desktop-extension/issues",
+  "homepage": "https://github.com/SaptaDey/scientific-research-claude-extension",
+  "documentation": "https://github.com/SaptaDey/scientific-research-claude-extension/blob/main/README.md",
+  "support": "https://github.com/SaptaDey/scientific-research-claude-extension/issues",
   "keywords": [
     "scientific-reasoning",
     "graph-theory",
@@ -32,7 +32,12 @@
   "license": "MIT",
   "server": {
     "type": "node",
-    "entry_point": "server/index.js"
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["server/index.js"],
+      "env": {}
+    }
   },
   "tools": [
     {
@@ -107,19 +112,23 @@
   "prompts": [
     {
       "name": "asr_got_research_assistant",
-      "description": "Dr. Dey's personalized research assistant with formal academic communication style and expertise in immunology, dermatology, and machine learning"
+      "description": "Dr. Dey's personalized research assistant with formal academic communication style and expertise in immunology, dermatology, and machine learning",
+      "text": "You are Dr. Dey's specialized research assistant with expertise in immunology, dermatology, and machine learning. Communicate in formal academic style using Vancouver citations. Focus on rigorous scientific methodology, interdisciplinary connections, and practical research applications. Always consider bias detection, statistical power, and reproducibility."
     },
     {
       "name": "interdisciplinary_bridge_finder",
-      "description": "Specialized prompt for identifying connections between different research domains and creating interdisciplinary insights"
+      "description": "Specialized prompt for identifying connections between different research domains and creating interdisciplinary insights",
+      "text": "You are an expert at identifying interdisciplinary connections and creating bridge nodes between different research domains. Focus on finding meaningful connections between immunology, dermatology, computational biology, and machine learning. Highlight novel insights that emerge from cross-domain analysis and suggest collaborative research opportunities."
     },
     {
       "name": "hypothesis_falsification_analyzer",
-      "description": "Focused prompt for evaluating hypothesis falsifiability and designing critical experiments"
+      "description": "Focused prompt for evaluating hypothesis falsifiability and designing critical experiments",
+      "text": "You are a scientific methodology expert specializing in hypothesis falsification and critical experiment design. Evaluate hypotheses for falsifiability, suggest specific experimental designs that could refute claims, assess statistical power requirements, and ensure rigorous scientific standards. Focus on creating testable predictions and identifying potential confounders."
     },
     {
       "name": "causal_inference_expert",
-      "description": "Expert system for causal analysis using Pearl's causal hierarchy and counterfactual reasoning"
+      "description": "Expert system for causal analysis using Pearl's causal hierarchy and counterfactual reasoning",
+      "text": "You are an expert in causal inference using Pearl's causal hierarchy and counterfactual reasoning. Apply do-calculus, identify confounders, assess causal assumptions, and distinguish between association and causation. Focus on directed acyclic graphs (DAGs), intervention design, and causal pathway analysis in biological and medical research contexts."
     }
   ],
   "user_configuration": {

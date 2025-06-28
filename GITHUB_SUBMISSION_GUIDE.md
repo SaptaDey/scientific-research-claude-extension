@@ -1,11 +1,11 @@
-# GitHub Submission Guide for ASR-GoT Desktop Extension
+# GitHub Submission Guide for scientific-research-claude Desktop Extension
 
 ## ✅ Claude Requirements Compliance
 
 This ASR-GoT Desktop Extension meets all of Claude's specified requirements:
 
 ### 1. ✅ **Publicly Available on GitHub**
-- Repository ready for: `https://github.com/saptaswa-dey/asr-got-desktop-extension`
+- Repository ready for: ` https://github.com/SaptaDey/scientific-research-claude-extension.git`
 - All source code included and organized
 - Complete documentation and examples
 
@@ -22,7 +22,7 @@ This ASR-GoT Desktop Extension meets all of Claude's specified requirements:
 
 ### 4. ✅ **Valid manifest.json with author GitHub profile**
 - Complete DXT-compliant `manifest.json`
-- Author field points to GitHub profile: `https://github.com/saptaswa-dey`
+- Author field points to GitHub profile: `https://github.com/SaptaDey`
 - All required fields present and validated
 
 ## 📁 Repository Structure
@@ -53,8 +53,8 @@ asr-got-desktop-extension/
 
 ### Step 1: Create GitHub Repository
 
-1. Go to [GitHub](https://github.com) and log in as `saptaswa-dey`
-2. Create new repository: `asr-got-desktop-extension`
+1. Go to [GitHub](https://github.com) and log in as `SaptaDey`
+2. Create new repository: `scientific-research-claude-desktop-extension`
 3. Set as **Public** repository
 4. Don't initialize with README (we have our own)
 
@@ -78,7 +78,7 @@ git commit -m "Initial commit: ASR-GoT Desktop Extension v1.0.0
 - MIT licensed and ready for Claude submission"
 
 # Add remote origin
-git remote add origin https://github.com/saptaswa-dey/asr-got-desktop-extension.git
+git remote add origin  https://github.com/SaptaDey/scientific-research-claude-extension.git
 
 # Push to GitHub
 git branch -M main
@@ -110,7 +110,7 @@ Once the GitHub repository is live, submit to Claude via:
 - **License**: MIT
 
 **Description**: 
-A comprehensive desktop extension implementing the ASR-GoT framework for systematic scientific reasoning through an 8-stage graph-based methodology, designed specifically for advanced research in immunology, dermatology, and computational biology.
+A comprehensive desktop extension implementing the scientific-research-claude framework for systematic scientific reasoning through an 8-stage graph-based methodology, designed specifically for advanced research in immunology, dermatology, and computational biology.
 
 **Key Features to Highlight:**
 - Complete 8-stage scientific reasoning framework
@@ -191,7 +191,7 @@ This extension represents a significant advancement in AI-assisted scientific re
 
 ## 🎉 Submission Ready!
 
-The ASR-GoT Desktop Extension is completely ready for GitHub publication and Claude submission. All requirements are met, documentation is comprehensive, and the extension provides genuine value to the scientific research community.
+The scientific-research-claude Desktop Extension is completely ready for GitHub publication and Claude submission. All requirements are met, documentation is comprehensive, and the extension provides genuine value to the scientific research community.
 
 **Next Steps:**
 1. Create GitHub repository
