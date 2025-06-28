@@ -1,4 +1,4 @@
-# ASR-GoT Desktop Extension (.DXT)
+# Scientific Research Claude Extension (.DXT)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
@@ -8,7 +8,7 @@
 
 A comprehensive desktop extension implementing the ASR-GoT framework for systematic scientific reasoning through an 8-stage graph-based methodology.
 
-> 🧬 **Designed for Advanced Scientific Research** - Created specifically for Dr. Saptaswa Dey's research in immunology, dermatology, and computational biology, but extensible to any scientific domain.
+> 🧬 **Designed for Advanced Scientific Research** - Created specifically for research in immunology, dermatology, and computational biology, but extensible to any scientific domain.
 
 ## Overview
 
@@ -266,9 +266,9 @@ await claude.tools.configure_collaboration({
 - **Causal Validity**: Proper causal inference methodology
 - **Temporal Consistency**: Logical time-based relationship validation
 
-## Customization for Dr. Dey's Research
+## Customization for Research
 
-The extension is pre-configured with Dr. Dey's research profile:
+The extension is pre-configured with a research profile:
 
 - **Primary Domain**: Immunology/Dermatology
 - **Specializations**: CTCL, skin microbiome, chromosomal instability
