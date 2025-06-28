@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![DXT Version](https://img.shields.io/badge/DXT-0.1-blue.svg)](https://docs.anthropic.com/claude/docs/dxt)
+[![smithery badge](https://smithery.ai/badge/@SaptaDey/scientific-research-claude-extension)](https://smithery.ai/server/@SaptaDey/scientific-research-claude-extension)
 
 **Advanced Scientific Reasoning - Graph of Thoughts**
 
