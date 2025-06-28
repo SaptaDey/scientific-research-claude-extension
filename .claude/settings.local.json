@@ -14,7 +14,10 @@
       "Bash(dxt:*)",
       "Bash(mcp-inspector:*)",
       "Bash(rm:*)",
-      "Bash(sha256sum:*)"
+      "Bash(sha256sum:*)",
+      "Bash(cp:*)",
+      "WebFetch(domain:modelcontextprotocol.io)",
+      "WebFetch(domain:modelcontextprotocol.io)"
     ],
     "deny": []
   }

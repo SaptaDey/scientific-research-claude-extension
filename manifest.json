@@ -1,8 +1,8 @@
 {
   "dxt_version": "0.1",
-  "name": "asr-got-scientific-reasoning",
-  "display_name": "ASR-GoT: Advanced Scientific Reasoning - Graph of Thoughts",
-  "version": "1.0.0",
+  "name": "scientific-reasoning",
+  "display_name": "Scientific Reasoning - Graph of Thoughts",
+  "version": "1.0.1",
   "description": "An intensive graph-based framework for scientific reasoning that implements the Advanced Scientific Reasoning Graph-of-Thoughts (ASR-GoT) methodology for complex research analysis and hypothesis generation.",
   "long_description": "This extension provides a comprehensive implementation of the ASR-GoT framework, enabling researchers to perform systematic scientific reasoning through an 8-stage graph-based methodology. It supports interdisciplinary research, causal inference, temporal analysis, statistical validation, and collaborative research workflows. Designed specifically for advanced scientific research with features like multi-dimensional confidence tracking, bias detection, knowledge gap identification, and impact estimation.",
   "author": {
@@ -35,8 +35,9 @@
     "entry_point": "server/index.js",
     "mcp_config": {
       "command": "node",
-      "args": ["server/index.js"],
-      "env": {}
+      "args": ["./server/index.js"],
+      "env": {},
+      "cwd": "."
     }
   },
   "tools": [

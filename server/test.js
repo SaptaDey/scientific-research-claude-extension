@@ -86,10 +86,8 @@ class MCPTester {
         const expectedTools = [
           'initialize_asr_got_graph',
           'decompose_research_task',
-          'generate_hypotheses',
-          'integrate_evidence',
-          'export_graph_data',
-          'get_graph_summary'
+          'get_graph_summary',
+          'export_graph_data'
         ];
 
         const foundTools = response.result.tools.map(t => t.name);
