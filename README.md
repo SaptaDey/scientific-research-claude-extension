@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![DXT Version](https://img.shields.io/badge/DXT-0.1-blue.svg)](https://docs.anthropic.com/claude/docs/dxt)
+[![smithery badge](https://smithery.ai/badge/@SaptaDey/scientific-research-claude-extension)](https://smithery.ai/server/@SaptaDey/scientific-research-claude-extension)
 
 **Advanced Scientific Reasoning - Graph of Thoughts**
 
@@ -48,6 +49,14 @@ The ASR-GoT (Advanced Scientific Reasoning - Graph of Thoughts) desktop extensio
 ## Quick Start
 
 ### 🚀 Installation
+
+#### Installing via Smithery
+
+To install scientific-research-claude-extension for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@SaptaDey/scientific-research-claude-extension):
+
+```bash
+npx -y @smithery/cli install @SaptaDey/scientific-research-claude-extension --client claude
+```
 
 #### Prerequisites
 - **Node.js** >= 18.0.0 ([Download](https://nodejs.org/))
