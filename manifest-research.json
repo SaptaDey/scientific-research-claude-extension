@@ -1,0 +1,143 @@
+{
+  "dxt_version": "0.1",
+  "name": "scientific-research-tools",
+  "display_name": "Scientific Research Tools",
+  "version": "1.0.0",
+  "description": "Comprehensive scientific research tools for paper search, analysis, and literature review with built-in resilience and error handling.",
+  "long_description": "This extension provides essential tools for scientific research including paper search across multiple databases, detailed paper analysis, citation generation, and comprehensive research queries. Features include ArXiv integration, academic database search, intelligent paper analysis, and robust error handling with fallback mechanisms.",
+  "author": {
+    "name": "Dr. Saptaswa Dey",
+    "email": "saptaswa.dey@medunigraz.at",
+    "url": "https://github.com/SaptaDey"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SaptaDey/scientific-research-claude-extension"
+  },
+  "homepage": "https://github.com/SaptaDey/scientific-research-claude-extension",
+  "documentation": "https://github.com/SaptaDey/scientific-research-claude-extension/blob/main/README.md",
+  "support": "https://github.com/SaptaDey/scientific-research-claude-extension/issues",
+  "keywords": [
+    "scientific-research",
+    "paper-search",
+    "literature-review",
+    "arxiv",
+    "citations",
+    "research-analysis",
+    "academic-tools",
+    "paper-analysis",
+    "research-query",
+    "scholarly-search"
+  ],
+  "license": "MIT",
+  "server": {
+    "type": "node",
+    "entry_point": "server/scientific-research-server.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["./server/scientific-research-server.js"],
+      "env": {},
+      "cwd": "."
+    }
+  },
+  "tools": [
+    {
+      "name": "search_papers",
+      "description": "Search for academic papers using keywords, authors, or topics with filtering options"
+    },
+    {
+      "name": "get_paper_details",
+      "description": "Get detailed information about a specific paper including full abstract, authors, and citations"
+    },
+    {
+      "name": "search_arxiv",
+      "description": "Search ArXiv preprint repository for the latest research papers in various fields"
+    },
+    {
+      "name": "analyze_paper",
+      "description": "Analyze a research paper and extract key information including methodology, findings, and limitations"
+    },
+    {
+      "name": "get_citations",
+      "description": "Get properly formatted citations in various academic styles (APA, MLA, Chicago, Vancouver, BibTeX)"
+    },
+    {
+      "name": "research_query",
+      "description": "Execute comprehensive research queries that combine multiple search strategies and provide synthesized results"
+    },
+    {
+      "name": "help",
+      "description": "Get help information about available research tools and usage examples"
+    },
+    {
+      "name": "list_tools",
+      "description": "List all available research tools with descriptions and usage examples"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "research_assistant",
+      "description": "Intelligent research assistant for literature review and paper analysis",
+      "text": "You are an expert research assistant specializing in scientific literature review and analysis. Help users find relevant papers, analyze research content, and synthesize findings across multiple sources. Focus on accuracy, comprehensive coverage, and clear explanations of complex research concepts."
+    },
+    {
+      "name": "paper_analyzer",
+      "description": "Specialized prompt for in-depth paper analysis and critique",
+      "text": "You are an expert at analyzing scientific papers with focus on methodology, findings, limitations, and research gaps. Provide critical analysis of research quality, identify potential biases, assess statistical rigor, and suggest improvements or future research directions."
+    },
+    {
+      "name": "literature_synthesizer",
+      "description": "Expert at synthesizing findings across multiple research papers",
+      "text": "You are an expert at synthesizing research findings across multiple papers and identifying patterns, conflicts, and consensus in the literature. Focus on creating comprehensive overviews, identifying research trends, and highlighting key insights from large bodies of research."
+    }
+  ],
+  "user_configuration": {
+    "default_search_limit": {
+      "type": "number",
+      "title": "Default Search Limit",
+      "description": "Default number of papers to return in search results",
+      "default": 10,
+      "minimum": 1,
+      "maximum": 50,
+      "required": false
+    },
+    "preferred_citation_style": {
+      "type": "string",
+      "title": "Preferred Citation Style",
+      "description": "Default citation format for paper citations",
+      "default": "apa",
+      "enum": ["apa", "mla", "chicago", "vancouver", "bibtex"],
+      "required": false
+    },
+    "include_preprints": {
+      "type": "boolean",
+      "title": "Include Preprints",
+      "description": "Include preprint papers in search results by default",
+      "default": true,
+      "required": false
+    },
+    "analysis_depth": {
+      "type": "string",
+      "title": "Default Analysis Depth",
+      "description": "Default depth for paper analysis",
+      "default": "detailed",
+      "enum": ["overview", "detailed", "comprehensive"],
+      "required": false
+    },
+    "research_fields": {
+      "type": "array",
+      "title": "Primary Research Fields",
+      "description": "Your primary research fields for targeted search suggestions",
+      "items": {
+        "type": "string"
+      },
+      "default": ["computer science", "biology", "medicine"],
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "node": ">=18.0.0"
+  }
+}

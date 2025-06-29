@@ -17,7 +17,10 @@
       "Bash(sha256sum:*)",
       "Bash(cp:*)",
       "WebFetch(domain:modelcontextprotocol.io)",
-      "WebFetch(domain:modelcontextprotocol.io)"
+      "WebFetch(domain:modelcontextprotocol.io)",
+      "Bash(rg:*)",
+      "Bash(grep:*)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }
