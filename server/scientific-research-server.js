@@ -349,7 +349,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   
   try {
     switch (name) {
-      case 'search_papers':
+      case 'search_papers': {
         if (!args.query) {
           throw new McpError(ErrorCode.InvalidParams, 'Missing required argument: query');
         }
@@ -378,8 +378,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             }, null, 2)
           }]
         };
+      }
 
-      case 'get_paper_details':
+      case 'get_paper_details': {
         if (!args.paper_id) {
           throw new McpError(ErrorCode.InvalidParams, 'Missing required argument: paper_id');
         }
@@ -392,168 +393,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             text: JSON.stringify(paperDetails, null, 2)
           }]
         };
+      }
 
-      case 'search_arxiv':
-        if (!args.query) {
-          throw new McpError(ErrorCode.InvalidParams, 'Missing required argument: query');
-        }
-        
-        const arxivResults = mockDB.searchArxiv(args.query, {
-          category: args.category,
-          max_results: args.max_results,
-          sort_by: args.sort_by
-        });
-        
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              query: args.query,
-              category: args.category,
-              results: arxivResults
-            }, null, 2)
-          }]
-        };
-
-      case 'analyze_paper':
-        if (!args.paper_content) {
-          throw new McpError(ErrorCode.InvalidParams, 'Missing required argument: paper_content');
-        }
-        
-        const analysis = mockDB.analyzePaper(args.paper_content, args.analysis_type);
-        
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              analysis_type: args.analysis_type || 'comprehensive',
-              content_length: args.paper_content.length,
-              analysis: analysis
-            }, null, 2)
-          }]
-        };
-
-      case 'get_citations':
-        if (!args.paper_id) {
-          throw new McpError(ErrorCode.InvalidParams, 'Missing required argument: paper_id');
-        }
-        
-        const citationData = mockDB.getCitations(args.paper_id, args.citation_format);
-        
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(citationData, null, 2)
-          }]
-        };
-
-      case 'research_query':
-        if (!args.research_question) {
-          throw new McpError(ErrorCode.InvalidParams, 'Missing required argument: research_question');
-        }
-        
-        // Comprehensive research query combining multiple searches
-        const querySearchResults = mockDB.searchPapers(args.research_question, { limit: 5 });
-        const queryArxivResults = mockDB.searchArxiv(args.research_question, { max_results: 3 });
-        
-        const synthesis = {
-          research_question: args.research_question,
-          scope: args.scope,
-          analysis_depth: args.analysis_depth || 'detailed',
-          literature_overview: {
-            total_papers_found: querySearchResults.length + queryArxivResults.length,
-            recent_papers: querySearchResults.filter(p => p.year >= 2020).length,
-            key_venues: [...new Set(querySearchResults.map(p => p.venue))]
-          },
-          key_papers: querySearchResults.slice(0, 3),
-          recent_preprints: queryArxivResults,
-          research_gaps: [
-            'Limited cross-domain evaluation',
-            'Insufficient real-world deployment studies',
-            'Need for standardized benchmarks'
-          ],
-          recommendations: [
-            'Focus on recent developments in the field',
-            'Consider interdisciplinary approaches',
-            'Evaluate practical implementation challenges'
-          ]
-        };
-        
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(synthesis, null, 2)
-          }]
-        };
-
-      case 'help':
-        const helpContent = {
-          general: 'Scientific Research MCP Server provides tools for academic research, paper search, and literature analysis.',
-          available_tools: scientificTools.map(tool => ({
-            name: tool.name,
-            description: tool.description
-          })),
-          examples: {
-            search: 'search_papers with query: "machine learning applications"',
-            analysis: 'analyze_paper with paper content and analysis_type',
-            citations: 'get_citations with paper_id and format preference'
-          },
-          tips: [
-            'Use specific keywords for better search results',
-            'Combine multiple tools for comprehensive research',
-            'Check paper details before citing'
-          ]
-        };
-        
-        if (args.topic) {
-          const topicHelp = {
-            search: 'Use search_papers for general academic search, search_arxiv for preprints',
-            analysis: 'Use analyze_paper to extract key information and identify research gaps',
-            citations: 'Use get_citations to get properly formatted citations in various styles',
-            general: helpContent
-          };
-          
-          return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify(topicHelp[args.topic] || topicHelp.general, null, 2)
-            }]
-          };
-        }
-        
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(helpContent, null, 2)
-          }]
-        };
-
-      case 'list_tools':
-        const toolsList = {
-          tools: scientificTools.map(tool => ({
-            name: tool.name,
-            description: tool.description,
-            required_params: tool.inputSchema.required || [],
-            optional_params: Object.keys(tool.inputSchema.properties || {}).filter(
-              key => !(tool.inputSchema.required || []).includes(key)
-            )
-          }))
-        };
-        
-        if (args.include_examples) {
-          toolsList.examples = {
-            search_papers: 'search_papers {"query": "climate change machine learning", "limit": 5}',
-            get_paper_details: 'get_paper_details {"paper_id": "arxiv:2301.07041"}',
-            research_query: 'research_query {"research_question": "How effective is deep learning for medical diagnosis?"}'
-          };
-        }
-        
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify(toolsList, null, 2)
-          }]
-        };
+      // case 'search_arxiv': { … }
+      // case 'analyze_paper': { … }
+      // case 'get_citations': { … }
+      // case 'research_query': { … }
+      // case 'help': { … }
+      // case 'list_tools': { … }
 
       default:
         throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
