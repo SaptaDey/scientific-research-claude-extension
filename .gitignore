@@ -97,3 +97,11 @@ venv.bak/
 # Research workspace (user data)
 workspace/
 research_data/
+
+# Backup and temporary development files
+*.backup
+*-backup.js
+*-corrected.js
+*.js.backup
+*-old.*
+*.tmp.js
