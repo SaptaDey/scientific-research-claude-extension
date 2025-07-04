@@ -17,6 +17,85 @@ import {
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
 import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
+
+// Input validation utilities to prevent injection and malformed data
+class InputValidator {
+  static validateString(value, fieldName, options = {}) {
+    if (typeof value !== 'string') {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} must be a string`);
+    }
+    
+    if (options.required && (!value || value.trim().length === 0)) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} is required and cannot be empty`);
+    }
+    
+    if (options.maxLength && value.length > options.maxLength) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} exceeds maximum length of ${options.maxLength}`);
+    }
+    
+    if (options.minLength && value.length < options.minLength) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} must be at least ${options.minLength} characters`);
+    }
+    
+    // Basic XSS and injection prevention
+    const dangerousPatterns = /<script|javascript:|data:|vbscript:|on\w+\s*=/i;
+    if (dangerousPatterns.test(value)) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} contains potentially dangerous content`);
+    }
+    
+    return value.trim();
+  }
+  
+  static validateNumber(value, fieldName, options = {}) {
+    if (typeof value !== 'number' || isNaN(value)) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} must be a valid number`);
+    }
+    
+    if (options.min !== undefined && value < options.min) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} must be at least ${options.min}`);
+    }
+    
+    if (options.max !== undefined && value > options.max) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} must be at most ${options.max}`);
+    }
+    
+    return value;
+  }
+  
+  static validateArray(value, fieldName, options = {}) {
+    if (!Array.isArray(value)) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} must be an array`);
+    }
+    
+    if (options.required && value.length === 0) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} cannot be empty`);
+    }
+    
+    if (options.maxItems && value.length > options.maxItems) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} cannot have more than ${options.maxItems} items`);
+    }
+    
+    if (options.minItems && value.length < options.minItems) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} must have at least ${options.minItems} items`);
+    }
+    
+    return value;
+  }
+  
+  static validateObject(value, fieldName, options = {}) {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} must be a valid object`);
+    }
+    
+    // Prevent prototype pollution
+    if (value.hasOwnProperty('__proto__') || value.hasOwnProperty('constructor') || value.hasOwnProperty('prototype')) {
+      throw new McpError(ErrorCode.InvalidParams, `${fieldName} contains forbidden properties`);
+    }
+    
+    return value;
+  }
+}
 
 // Complete ASR-GoT Graph State Management - Exact Specification Implementation
 class ASRGoTGraph {
@@ -240,7 +319,7 @@ class ASRGoTGraph {
       this._logError('Node metadata creation failed', error);
       const timestamp = this._safeGetTimestamp();
       return {
-        node_id: baseMetadata.node_id || 'fallback_' + Math.random().toString(36).substring(7),
+        node_id: baseMetadata.node_id || 'fallback_' + crypto.randomUUID().slice(0, 8),
         created: timestamp,
         updated: timestamp,
         timestamp: timestamp,
@@ -266,7 +345,7 @@ class ASRGoTGraph {
       this._logError('Edge metadata creation failed', error);
       const timestamp = this._safeGetTimestamp();
       return {
-        edge_id: baseMetadata.edge_id || 'fallback_edge_' + Math.random().toString(36).substring(7),
+        edge_id: baseMetadata.edge_id || 'fallback_edge_' + crypto.randomUUID().slice(0, 8),
         created: timestamp,
         updated: timestamp,
         timestamp: timestamp,
@@ -363,6 +442,9 @@ class ASRGoTGraph {
       metadata: rootNodeMetadata
     };
     
+    // Check memory limits before adding root node
+    this.enforceMemoryLimits();
+    
     this.vertices.set('n0', rootNode);
     this.nodeTypes.add('root');
     
@@ -444,6 +526,9 @@ class ASRGoTGraph {
             metadata: dimensionMetadata
           };
 
+          // Check memory limits before adding dimension node
+          this.enforceMemoryLimits();
+          
           this.vertices.set(nodeId, dimensionNode);
           this.nodeTypes.add('dimension');
           
@@ -604,6 +689,9 @@ class ASRGoTGraph {
             metadata: hypothesisMetadata
           };
 
+          // Check memory limits before adding hypothesis node
+          this.enforceMemoryLimits();
+          
           this.vertices.set(nodeId, hypothesisNode);
           this.nodeTypes.add('hypothesis');
           
@@ -1321,10 +1409,116 @@ quality_metrics:
   knowledge_gaps: ${data.summary.knowledge_gaps}
 `;
   }
+  
+  // Memory management methods to prevent resource exhaustion
+  checkMemoryLimits() {
+    const vertexCount = this.vertices.size;
+    const edgeCount = this.edges.size;
+    const hyperedgeCount = this.hyperedges.size;
+    
+    if (vertexCount >= this.maxVertices) {
+      throw new McpError(ErrorCode.InternalError, `Vertex limit exceeded: ${vertexCount}/${this.maxVertices}`);
+    }
+    
+    if (edgeCount >= this.maxEdges) {
+      throw new McpError(ErrorCode.InternalError, `Edge limit exceeded: ${edgeCount}/${this.maxEdges}`);
+    }
+    
+    // Log warnings at 80% capacity
+    if (vertexCount > this.maxVertices * 0.8) {
+      console.warn(`[${new Date().toISOString()}] [WARN] Vertex count at ${Math.round((vertexCount/this.maxVertices)*100)}% capacity`);
+    }
+    
+    if (edgeCount > this.maxEdges * 0.8) {
+      console.warn(`[${new Date().toISOString()}] [WARN] Edge count at ${Math.round((edgeCount/this.maxEdges)*100)}% capacity`);
+    }
+  }
+  
+  enforceMemoryLimits() {
+    try {
+      this.checkMemoryLimits();
+    } catch (error) {
+      // If we're at the limit, try to clean up low-confidence nodes
+      this.cleanupLowConfidenceNodes();
+      
+      // Check again after cleanup
+      this.checkMemoryLimits();
+    }
+  }
+  
+  cleanupLowConfidenceNodes() {
+    const threshold = 0.1; // Remove nodes with very low confidence
+    let removedCount = 0;
+    
+    for (const [nodeId, node] of this.vertices) {
+      if (nodeId === 'n0') continue; // Never remove root node
+      
+      const confidence = node.confidence;
+      if (confidence && confidence.means) {
+        const avgConfidence = confidence.means.reduce((a, b) => a + b, 0) / confidence.means.length;
+        if (avgConfidence < threshold) {
+          this.vertices.delete(nodeId);
+          removedCount++;
+          
+          // Remove associated edges
+          for (const [edgeId, edge] of this.edges) {
+            if (edge.source === nodeId || edge.target === nodeId) {
+              this.edges.delete(edgeId);
+            }
+          }
+        }
+      }
+    }
+    
+    console.warn(`[${new Date().toISOString()}] [WARN] Memory cleanup: removed ${removedCount} low-confidence nodes`);
+  }
+  
+  getMemoryUsage() {
+    return {
+      vertices: this.vertices.size,
+      edges: this.edges.size,
+      hyperedges: this.hyperedges.size,
+      max_vertices: this.maxVertices,
+      max_edges: this.maxEdges,
+      vertex_usage_percent: Math.round((this.vertices.size / this.maxVertices) * 100),
+      edge_usage_percent: Math.round((this.edges.size / this.maxEdges) * 100)
+    };
+  }
 }
 
-// Global graph instance
-let currentGraph = null;
+// Session-based graph state management to fix race condition
+const graphSessions = new Map();
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+// Clean up expired sessions periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [sessionId, session] of graphSessions) {
+    if (now - session.lastAccess > SESSION_TIMEOUT) {
+      graphSessions.delete(sessionId);
+      console.error(`[${new Date().toISOString()}] [INFO] Cleaned up expired session: ${sessionId}`);
+    }
+  }
+}, 5 * 60 * 1000); // Check every 5 minutes
+
+// Get or create graph session
+function getGraphSession(requestId) {
+  // Use requestId as session identifier for now
+  // In production, this should be a proper session management system
+  const sessionId = requestId || 'default';
+  
+  if (!graphSessions.has(sessionId)) {
+    graphSessions.set(sessionId, {
+      graph: null,
+      created: Date.now(),
+      lastAccess: Date.now()
+    });
+  }
+  
+  const session = graphSessions.get(sessionId);
+  session.lastAccess = Date.now();
+  return session;
+}
 
 // Complete MCP tools covering all 8 stages and 29 parameters
 const tools = [
@@ -1529,79 +1723,124 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     switch (name) {
       case 'initialize_asr_got_graph':
-        if (!args.task_description) {
-          throw new McpError(ErrorCode.InvalidParams, 'Missing required argument: task_description');
+        // Comprehensive input validation
+        InputValidator.validateString(args.task_description, 'task_description', { 
+          required: true, 
+          maxLength: 5000,
+          minLength: 10 
+        });
+        
+        if (args.initial_confidence) {
+          InputValidator.validateArray(args.initial_confidence, 'initial_confidence', { 
+            maxItems: 4, 
+            minItems: 4 
+          });
+          args.initial_confidence.forEach((val, idx) => {
+            InputValidator.validateNumber(val, `initial_confidence[${idx}]`, { min: 0, max: 1 });
+          });
         }
         
-        currentGraph = new ASRGoTGraph(args.config || {});
-        const initResult = currentGraph.initialize(
+        if (args.config) {
+          InputValidator.validateObject(args.config, 'config');
+        }
+        
+        const session = getGraphSession(requestId);
+        session.graph = new ASRGoTGraph(args.config || {});
+        const initResult = session.graph.initialize(
           args.task_description,
           args.initial_confidence,
           args.config
         );
         
-        console.error(`[${new Date().toISOString()}] [INFO] Graph initialized with ${Object.keys(currentGraph.metadata.parameters).length} parameters active`);
+        console.error(`[${new Date().toISOString()}] [INFO] Graph initialized with ${Object.keys(session.graph.metadata.parameters).length} parameters active`);
         
         return {
-          content: [{ type: 'text', text: currentGraph._safeJSONStringify(initResult, 2) }]
+          content: [{ type: 'text', text: session.graph._safeJSONStringify(initResult, 2) }]
         };
 
       case 'decompose_research_task':
-        if (!currentGraph) {
+        const sessionDecompose = getGraphSession(requestId);
+        if (!sessionDecompose.graph) {
           throw new McpError(ErrorCode.InvalidRequest, 'No graph initialized. Please run initialize_asr_got_graph first.');
         }
-        const decomposeResult = currentGraph.decomposeTask(args.dimensions);
+        
+        if (args.dimensions) {
+          InputValidator.validateArray(args.dimensions, 'dimensions', { maxItems: 20 });
+          args.dimensions.forEach((dim, idx) => {
+            InputValidator.validateString(dim, `dimensions[${idx}]`, { maxLength: 200 });
+          });
+        }
+        const decomposeResult = sessionDecompose.graph.decomposeTask(args.dimensions);
         return {
-          content: [{ type: 'text', text: currentGraph._safeJSONStringify(decomposeResult, 2) }]
+          content: [{ type: 'text', text: sessionDecompose.graph._safeJSONStringify(decomposeResult, 2) }]
         };
 
       case 'generate_hypotheses':
-        if (!currentGraph) {
-          throw new McpError(ErrorCode.InvalidRequest, 'No graph initialized.');
+        const sessionHypotheses = getGraphSession(requestId);
+        if (!sessionHypotheses.graph) {
+          throw new McpError(ErrorCode.InvalidRequest, 'No graph initialized. Please run initialize_asr_got_graph first.');
         }
-        const hypothesesResult = currentGraph.generateHypotheses(
+        
+        // Validate inputs
+        InputValidator.validateString(args.dimension_node_id, 'dimension_node_id', { required: true, maxLength: 50 });
+        InputValidator.validateArray(args.hypotheses, 'hypotheses', { required: true, maxItems: 10, minItems: 1 });
+        
+        if (args.config) {
+          InputValidator.validateObject(args.config, 'config');
+        }
+        const hypothesesResult = sessionHypotheses.graph.generateHypotheses(
           args.dimension_node_id,
           args.hypotheses,
           args.config
         );
         return {
-          content: [{ type: 'text', text: currentGraph._safeJSONStringify(hypothesesResult, 2) }]
+          content: [{ type: 'text', text: sessionHypotheses.graph._safeJSONStringify(hypothesesResult, 2) }]
         };
 
       case 'get_graph_summary':
-        if (!currentGraph) {
+        const sessionSummary = getGraphSession(requestId);
+        if (!sessionSummary.graph) {
           throw new McpError(ErrorCode.InvalidRequest, 'No graph initialized.');
         }
-        const summary = currentGraph.getGraphSummary();
+        const summary = sessionSummary.graph.getGraphSummary();
         return {
-          content: [{ type: 'text', text: currentGraph._safeJSONStringify(summary, 2) }]
+          content: [{ type: 'text', text: sessionSummary.graph._safeJSONStringify(summary, 2) }]
         };
 
       case 'export_graph_data':
-        if (!currentGraph) {
+        const sessionExport = getGraphSession(requestId);
+        if (!sessionExport.graph) {
           throw new McpError(ErrorCode.InvalidRequest, 'No graph initialized.');
         }
-        const exportedData = currentGraph.exportGraph(args.format);
+        const exportedData = sessionExport.graph.exportGraph(args.format);
         return {
           content: [{ type: 'text', text: exportedData }]
         };
 
       case 'execute_resilient_query':
-        if (!args.query) {
-          throw new McpError(ErrorCode.InvalidParams, 'Missing required argument: query');
+        // Validate query input
+        InputValidator.validateString(args.query, 'query', { 
+          required: true, 
+          maxLength: 2000,
+          minLength: 5 
+        });
+        
+        if (args.config) {
+          InputValidator.validateObject(args.config, 'config');
         }
         
         // Create a new graph for this query or use existing one
-        if (!currentGraph) {
-          currentGraph = new ASRGoTGraph(args.config || {});
+        const sessionQuery = getGraphSession(requestId);
+        if (!sessionQuery.graph) {
+          sessionQuery.graph = new ASRGoTGraph(args.config || {});
         }
         
-        const queryResult = currentGraph.executeQueryWithFallbacks(args.query, args.config || {});
+        const queryResult = sessionQuery.graph.executeQueryWithFallbacks(args.query, args.config || {});
         
         console.error(`[${new Date().toISOString()}] [INFO] Resilient query completed - ${queryResult.stages_completed.length} stages completed, ${queryResult.stages_failed.length} failed`);
         
         return {
-          content: [{ type: 'text', text: currentGraph._safeJSONStringify(queryResult, 2) }]
+          content: [{ type: 'text', text: sessionQuery.graph._safeJSONStringify(queryResult, 2) }]
         };
 
       default:
@@ -1642,6 +1881,40 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
+// Graceful shutdown utilities
+let isShuttingDown = false;
+let serverInstance = null;
+
+async function gracefulShutdown(exitCode = 0) {
+  if (isShuttingDown) {
+    console.error(`[${new Date().toISOString()}] [WARN] Shutdown already in progress...`);
+    return;
+  }
+  
+  isShuttingDown = true;
+  console.error(`[${new Date().toISOString()}] [INFO] Starting graceful shutdown...`);
+  
+  try {
+    // Clean up graph sessions
+    console.error(`[${new Date().toISOString()}] [INFO] Cleaning up ${graphSessions.size} active sessions...`);
+    graphSessions.clear();
+    
+    // Close server if running
+    if (serverInstance) {
+      console.error(`[${new Date().toISOString()}] [INFO] Closing server connections...`);
+      // Note: MCP server doesn't have explicit close method, but we can mark it as shutting down
+    }
+    
+    console.error(`[${new Date().toISOString()}] [INFO] Graceful shutdown completed`);
+  } catch (error) {
+    console.error(`[${new Date().toISOString()}] [ERROR] Error during shutdown: ${error.message}`);
+  } finally {
+    setTimeout(() => {
+      process.exit(exitCode);
+    }, 100); // Give a brief moment for cleanup to complete
+  }
+}
+
 // Start server with enhanced error handling and graceful shutdown
 async function main() {
   try {
@@ -1651,33 +1924,34 @@ async function main() {
     const transport = new StdioServerTransport();
     
     // Add process error handlers for graceful shutdown
-    process.on('uncaughtException', (error) => {
+    process.on('uncaughtException', async (error) => {
       console.error(`[${new Date().toISOString()}] [FATAL] Uncaught exception: ${error.message}`);
       console.error(`[${new Date().toISOString()}] [FATAL] Stack trace: ${error.stack}`);
-      process.exit(1);
+      await gracefulShutdown(1);
     });
     
-    process.on('unhandledRejection', (reason, promise) => {
+    process.on('unhandledRejection', async (reason, promise) => {
       console.error(`[${new Date().toISOString()}] [FATAL] Unhandled rejection at:`, promise, 'reason:', reason);
-      process.exit(1);
+      await gracefulShutdown(1);
     });
     
-    process.on('SIGINT', () => {
+    process.on('SIGINT', async () => {
       console.error(`[${new Date().toISOString()}] [INFO] Received SIGINT, shutting down gracefully...`);
-      process.exit(0);
+      await gracefulShutdown(0);
     });
     
-    process.on('SIGTERM', () => {
+    process.on('SIGTERM', async () => {
       console.error(`[${new Date().toISOString()}] [INFO] Received SIGTERM, shutting down gracefully...`);
-      process.exit(0);
+      await gracefulShutdown(0);
     });
     
     await server.connect(transport);
+    serverInstance = server;
     console.error(`[${new Date().toISOString()}] [INFO] ASR-GoT MCP Server running with ${tools.length} tools - Node.js implementation`);
   } catch (error) {
     console.error(`[${new Date().toISOString()}] [ERROR] Failed to start server: ${error.message}`);
     console.error(`[${new Date().toISOString()}] [ERROR] Stack trace: ${error.stack}`);
-    process.exit(1);
+    await gracefulShutdown(1);
   }
 }
 
